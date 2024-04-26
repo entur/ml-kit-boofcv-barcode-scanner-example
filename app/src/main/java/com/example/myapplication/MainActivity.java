@@ -6,6 +6,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Range;
 import android.util.Size;
 import android.view.View;
 import android.widget.Button;
@@ -210,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
                         ;
 
                 // https://stackoverflow.com/questions/57485050/how-to-increase-frame-rate-with-android-camerax-imageanalysis
-
+                // https://stackoverflow.com/questions/71953493/how-to-set-exposure-on-camera2-api
 
                 Camera2Interop.Extender ext = new Camera2Interop.Extender<>(builder);
                 //ext.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_OFF)
@@ -218,14 +219,16 @@ public class MainActivity extends AppCompatActivity {
                         //.setCaptureRequestOption(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_OFF)
                 //ext.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_OFF);
                         //.setCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF)
-                ext.setCaptureRequestOption(CaptureRequest.CONTROL_AWB_MODE, CaptureRequest.CONTROL_AWB_MODE_OFF);
-                        ext.setCaptureRequestOption(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, 1);
+                ext.setCaptureRequestOption(CaptureRequest.CONTROL_AWB_MODE, CaptureRequest.CONTROL_AWB_MODE_DAYLIGHT);
+                //ext.setCaptureRequestOption(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, -10);
 
-        ext.setCaptureRequestOption(CaptureRequest.SENSOR_SENSITIVITY, 1000);
-        //        ext.setCaptureRequestOption(CaptureRequest.SENSOR_FRAME_DURATION, 16666666);
-        //        ext.setCaptureRequestOption(CaptureRequest.SENSOR_EXPOSURE_TIME, 20400000)  ;
-                       ;
+                ext.setCaptureRequestOption(CaptureRequest.CONTROL_AE_ANTIBANDING_MODE, CaptureRequest.CONTROL_AE_ANTIBANDING_MODE_AUTO);
 
+                ext.setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, new Range<>(15, 30));
+
+                ext.setCaptureRequestOption(CaptureRequest.SENSOR_SENSITIVITY, 100); // LOWER SEEMS TO BE LESS AFFECTED BY DISPLAY REFRESH EFFECTS
+                ext.setCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO);
+                ext.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
 
                 ImageAnalysis imageAnalysis = builder.build();
 
@@ -270,12 +273,8 @@ public class MainActivity extends AppCompatActivity {
         Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner) this, cameraSelector, preview, imageAnalysis);
         CameraInfo cameraInfo = camera.getCameraInfo();
 
-
         // https://medium.com/androiddevelopers/using-camerax-exposure-compensation-api-11fd75785bf
         CameraControl cameraControl = camera.getCameraControl();
-
-        //cameraControl.setZoomRatio( (cameraInfo.getZoomState().getValue().getMaxZoomRatio() - cameraInfo.getZoomState().getValue().getMinZoomRatio()) / 2);
-
 
         this.preview.setScaleType(PreviewView.ScaleType.FILL_CENTER);
     }
